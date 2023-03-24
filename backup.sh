@@ -55,13 +55,13 @@ copy_s3 () {
     EXISTS_ERR=`aws $AWS_ARGS s3api head-bucket --bucket "$S3_BUCKET" 2>&1 || true`
     if [[ ! -z "$EXISTS_ERR" ]]; then
       echo "Bucket $S3_BUCKET not found (or owned by someone else), attempting to create"
-      aws $AWS_ARGS s3api create-bucket --bucket $S3_BUCKET
+      aws $AWS_ARGS s3api create-bucket --bucket $S3_BUCKET --create-bucket-configuration LocationConstraint=$S3_REGION
     fi
   fi
 
   echo "Uploading ${DEST_FILE} on S3..."
   
-  cat $SRC_FILE | aws $AWS_ARGS $AWS_EXTRA_ARGS s3 cp - s3://$S3_BUCKET/$S3_PREFIX/$DEST_FILE
+  cat $SRC_FILE | aws $AWS_ARGS s3 $AWS_S3_EXTRA_ARGS cp - s3://$S3_BUCKET/$S3_PREFIX/$DEST_FILE
 
   if [ $? != 0 ]; then
     >&2 echo "Error uploading ${DEST_FILE} on S3"
