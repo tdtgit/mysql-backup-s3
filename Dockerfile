@@ -1,28 +1,7 @@
-FROM python:3.11-alpine AS awscli
+FROM alpine:3.14
 
-ENV AWSCLI_VERSION=2.11.5
-
-RUN apk add --no-cache \
-    curl \
-    make \
-    cmake \
-    gcc \
-    g++ \
-    libc-dev \
-    libffi-dev \
-    openssl-dev \
-    && curl https://awscli.amazonaws.com/awscli-${AWSCLI_VERSION}.tar.gz | tar -xz \
-    && cd awscli-${AWSCLI_VERSION} \
-    && ./configure --prefix=/opt/aws-cli/ --with-download-deps \
-    && make \
-    && make install
-
-FROM python:3.11-alpine
-
-RUN apk --no-cache add groff
-COPY --from=awscli /opt/aws-cli/ /opt/aws-cli/
-RUN ln -s /opt/aws-cli/bin/aws /usr/local/bin/aws
-
+RUN apk --no-cache add python3 py3-pip && \
+    pip install awscli
 RUN apk --no-cache add mysql-client mariadb-connector-c
 
 LABEL maintainer="Johannes Schickling <schickling.j@gmail.com>"
